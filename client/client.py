@@ -3,10 +3,13 @@ import os
 from types import NoneType
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtGui import QBrush, QColor, QPen, QFont, QPolygonF
+from PyQt5.QtWidgets import QGraphicsScene
 
 from GUI.client import Ui_MainWindow
 import socket
+
 
 def get_local_ip():
     hostname = socket.gethostname()
@@ -26,14 +29,12 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_2.clicked.connect(lambda: self.choose_operator(page_index=1))
         self.pushButton.clicked.connect(lambda: self.choose_operator(page_index=2))
         self.lineEdit.setText('')
-        self.lineEdit_4.setText('1.txt')
+        self.lineEdit_4.setText('1.conf')
         user_file_name = list()
 
     def check_user_file_name(self, filename):
-        os.system(f'tftp {self.lineEdit_2.text()} GET {filename}.txt')
-        return os.path.exists(f'{filename}.txt')
-
-
+        os.system(f'tftp {self.lineEdit_2.text()} GET {filename}.conf')
+        return os.path.exists(f'{filename}.conf')
 
     def choose_operator(self, page_index):
         self.curr_ip = self.lineEdit_2.text()
@@ -46,24 +47,190 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         elif result_repeat:
             err_dialog = QtWidgets.QErrorMessage(self)
             err_dialog.showMessage("Данный пользователь уже прошел тестирование!")
-            os.remove(f'{self.file_name}.txt')
+            os.remove(f'{self.file_name}.conf')
         elif page_index == 1 and self.lineEdit.text() != "":
-            self.change_size(351, 531)
+            self.change_size(1450, 511)
             self.stackedWidget.setCurrentIndex(page_index)
-            standard_num = self.lineEdit_4.text().split('.txt')[0]
+            standard_num = self.lineEdit_4.text().split('.conf')[0]
             if standard_num == '1':
-                self.textEdit.append('1')
-                self.textEdit.append('2  3')
-                self.textEdit.append('4  5')
-        elif page_index == 2:
-            self.change_size(721, 531)
-            pathlib.Path(f'{self.file_name}.txt').touch()
-            pathlib.Path(f'{self.file_name}.txt').write_text(self.textEdit.toPlainText())
-            os.system(f'tftp {self.curr_ip} PUT {self.file_name}.txt')
-            self.stackedWidget.setCurrentIndex(page_index)
+                self.textEdit.append('SYSTEM {')
+                self.textEdit.append('	HOSTNAME=ip_ats_2')
+                self.textEdit.append('}')
+                self.textEdit.append('NETWORK {')
+                self.textEdit.append('	IFACE {')
+                self.textEdit.append('		IFACE_NAME=eth1')
+                self.textEdit.append('		IP=172.16.2.1')
+                self.textEdit.append('		NETMASK=255.255.255.0')
+                self.textEdit.append('	}')
+                self.textEdit.append('	ROUTE {')
+                self.textEdit.append('		DEFAULT_GW=true')
+                self.textEdit.append('		GATEWAY=172.16.2.2')
+                self.textEdit.append('		NETMASK=255.255.255.0')
+                self.textEdit.append('		IFACE_NAME=eth1')
+                self.textEdit.append('	}')
+                self.textEdit.append('}')
+                self.textEdit.append('IPTABLES {')
+                self.textEdit.append('	FORWARD {')
+                self.textEdit.append('		ACTION=ACCEPT')
+                self.textEdit.append('	}')
+                self.textEdit.append('	INPUT {')
+                self.textEdit.append('		ACTION=ACCEPT')
+                self.textEdit.append('	}')
+                self.textEdit.append('	OUTPUT {')
+                self.textEdit.append('		ACTION=ACCEPT')
+                self.textEdit.append('	}')
+                self.textEdit.append('	PREROUTING {')
+                self.textEdit.append('		ACTION=ACCEPT')
+                self.textEdit.append('	}')
+                self.textEdit.append('	POSTROUTING {')
+                self.textEdit.append('		ACTION=ACCEPT')
+                self.textEdit.append('	}')
+                self.textEdit.append('}')
+                self.textEdit.append('IAX {')
+                self.textEdit.append('	GENERAL {')
+                self.textEdit.append('		BANDWIDTH="low"')
+                self.textEdit.append('		JITTERBUFFER=false')
+                self.textEdit.append('		FORCEJITTERBUFFER=false')
+                self.textEdit.append('		AUTOKILL=true')
+                self.textEdit.append('		BINDADDR=172.16.2.1')
+                self.textEdit.append('	}')
+                self.textEdit.append('	IAX_ROUTE {')
+                self.textEdit.append('		NAME="ip_ats_1"')
+                self.textEdit.append('		TYPE="friend"')
+                self.textEdit.append('		HOST="172.16.1.1"')
+                self.textEdit.append('		CONTEXT="main"')
+                self.textEdit.append('		TRUNK=true')
+                self.textEdit.append('		ALLOW="alaw"')
+                self.textEdit.append('		ALLOW="gsm"')
+                self.textEdit.append('		ALLOW="ulaw"')
+                self.textEdit.append('	}')
+                self.textEdit.append('}')
+                self.textEdit.append('SIP {')
+                self.textEdit.append('	GENERAL {')
+                self.textEdit.append('		CONTEXT="main"')
+                self.textEdit.append('		BINDPORT=5060')
+                self.textEdit.append('		BINDADDR=0.0.0.0')
+                self.textEdit.append('		ALLOWOVERLAP=false')
+                self.textEdit.append('		SRVLOOKUP=true')
+                self.textEdit.append('		DISALLOW="all"')
+                self.textEdit.append('		ALLOW="alaw"')
+                self.textEdit.append('		ALLOW="ulaw"')
+                self.textEdit.append('		ALLOW="g729"')
+                self.textEdit.append('	}')
+                self.textEdit.append('	PHONE {')
+                self.textEdit.append('		TYPE="friend"')
+                self.textEdit.append('		CONTEXT="main"')
+                self.textEdit.append('		HOST="172.16.1.1"')
+                self.textEdit.append('		NUMBER=1')
+                self.textEdit.append('	}')
+                self.textEdit.append('}')
+                self.textEdit.append('ZAPTEL {')
+                self.textEdit.append('	LOADZONE="ru"')
+                self.textEdit.append('	DEFAULTZONE="ru"')
+                self.textEdit.append('	FXOKS="63-110"')
+                self.textEdit.append('	CHAN_E1 {')
+                self.textEdit.append('		SPAN {')
+                self.textEdit.append('			NUMBER=1')
+                self.textEdit.append('			TIMING=1')
+                self.textEdit.append('			LBO=0')
+                self.textEdit.append('			FRAMING="ccs"')
+                self.textEdit.append('			CODING="hdb3"')
+                self.textEdit.append('		}')
+                self.textEdit.append('		BCHAN="1-15,17-31"')
+                self.textEdit.append('		HARDHDLC=16')
+                self.textEdit.append('		SPAN {')
+                self.textEdit.append('			NUMBER=2')
+                self.textEdit.append('			TIMING=0')
+                self.textEdit.append('			LBO=0')
+                self.textEdit.append('			FRAMING="ccs"')
+                self.textEdit.append('			CODING="hdb3"')
+                self.textEdit.append('		}')
+                self.textEdit.append('		BCHAN="32-46,48-62"')
+                self.textEdit.append('		HARDHDLC=47')
+                self.textEdit.append('	}')
+                self.textEdit.append('}')
+                self.textEdit.append('ZAPATA {')
+                self.textEdit.append('	CONTEXT="main"')
+                self.textEdit.append('	SWITCHTYPE="national"')
+                self.textEdit.append('	ECHOCANCEL=true')
+                self.textEdit.append('	ECHOCANCELWHENBRIDGED=true')
+                self.textEdit.append(' OVERLAPDIAL=true')
+                self.textEdit.append('	CHAN {')
+                self.textEdit.append('		CONTEXT="main"')
+                self.textEdit.append('		GROUP=3')
+                self.textEdit.append('		SIGNALLING="fxo_ks"')
+                self.textEdit.append('		CHANNEL="63-110"')
+                self.textEdit.append('	}')
+                self.textEdit.append('	CHAN {')
+                self.textEdit.append('		CONTEXT="main"')
+                self.textEdit.append('		GROUP=1')
+                self.textEdit.append('		SIGNALLING="pri_cpe"')
+                self.textEdit.append('		CHANNEL="1-15,17-31"')
+                self.textEdit.append('	}')
+                self.textEdit.append('	CHAN {')
+                self.textEdit.append('		CONTEXT="main"')
+                self.textEdit.append('		GROUP=2')
+                self.textEdit.append('		SIGNALLING="pri_net"')
+                self.textEdit.append('		CHANNEL="32-46,48-62"')
+                self.textEdit.append('	}')
+                self.textEdit.append('	CHAN {')
+                self.textEdit.append('		 CONTEXT="main"')
+                self.textEdit.append('         SIGNALLING="fxo_ks"')
+                self.textEdit.append('         CALLERID=61921')
+                self.textEdit.append('         CHANNEL="63"')
+                self.textEdit.append('		}')
+                self.textEdit.append('  CHAN {')
+                self.textEdit.append('         CONTEXT="main"')
+                self.textEdit.append('         SIGNALLING="fxo_ks"')
+                self.textEdit.append('         CALLERID=61922')
+                self.textEdit.append('         CHANNEL="64"')
+                self.textEdit.append('		}')
+                self.textEdit.append('}')
+                self.textEdit.append('EXTENSIONS {')
+                self.textEdit.append('	GENERAL {')
+                self.textEdit.append('		STATIC=true')
+                self.textEdit.append('		WRITEPROTECT=false')
+                self.textEdit.append('		CLEARGLOBALVARS=false')
+                self.textEdit.append('	}')
+                self.textEdit.append('	EXTENGROUP {')
+                self.textEdit.append('		NAME="main"')
+                self.textEdit.append('		EXTEN="61921:Zap/63::"')
+                self.textEdit.append('		EXTEN="61922:Zap/64::"')
+                self.textEdit.append('		EXTEN="_619XX:IAX2/ip_ats_1::"')
+                self.textEdit.append('		EXTEN="_619XX:SIP/1::"')
+                self.textEdit.append('		EXTEN="_619XX:Zap/g1::"')
+                self.textEdit.append('		}')
+                self.textEdit.append('}')
 
-            os.system(f'tftp {self.curr_ip} GET {self.file_name}.txt')
-            with open(f'{self.file_name}.txt', 'r') as f:
+            # === Очистка старой сцены (если была) ===
+            if hasattr(self, 'scene'):
+                self.scene.clear()
+            else:
+                self.scene = QGraphicsScene()
+
+            # === Настройка стилей ===
+            black_pen = QPen(Qt.black, 2)
+            gray_brush = QBrush(QColor(192, 192, 192))
+
+            # === Рисование блоков ===
+            self.draw_block(self.scene, 0, 0, "IAΔ", "ЦАТС\nΔX-500С", "IP-ATC\nT-76С", "T-76С", "E+H1", "S", "M")
+            # self.draw_block(self.scene, 350, 100, "UATC", "ΔX-500С", "IP-ATC", "T-76С", "E+H1", "S", "M")
+            # self.draw_block(self.scene, 650, 100, "UATC", "ΔX-500С", "IP-ATC", "T-76С", "E+H1", "S", "M")
+
+            # === Добавление дополнительных элементов ===
+            self.draw_additional_elements(self.scene)
+
+            # === Привязка сцены к view ===
+            self.graphicsView.setScene(self.scene)
+            self.graphicsView.setRenderHint(QtGui.QPainter.Antialiasing)
+        elif page_index == 2:
+            self.change_size(1083, 575)
+            pathlib.Path(f'{self.file_name}.conf').touch()
+            pathlib.Path(f'{self.file_name}.conf').write_text(self.textEdit.toPlainText())
+            os.system(f'tftp {self.curr_ip} PUT {self.file_name}.conf')
+            self.stackedWidget.setCurrentIndex(page_index)
+            os.system(f'tftp {self.curr_ip} GET {self.file_name}.conf')
+            with open(f'{self.file_name}.conf', 'r') as f:
                 text = f.read()
 
             file_name_etalon = self.lineEdit_4.text()
@@ -89,7 +256,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             if len(user_text_list) < len(etalon_text_list):
                 user_list_len = len(etalon_text_list)
             elif len(user_text_list) > len(etalon_text_list):
-                etalon_text_list += ['']*(len(user_text_list) - len(etalon_text_list))
+                etalon_text_list += [''] * (len(user_text_list) - len(etalon_text_list))
                 user_list_len = len(user_text_list)
             else:
                 user_list_len = len(user_text_list)
@@ -100,7 +267,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             for index_el, el in enumerate(user_text_list):
                 user_table.setItem(index_el, 0, QtWidgets.QTableWidgetItem(str(el)))
 
-            pathlib.Path(f'{self.file_name}.txt').unlink()
+            pathlib.Path(f'{self.file_name}.conf').unlink()
             pathlib.Path(f'{file_name_etalon}').unlink()
             self.check_answer(etalon_text_list)
 
@@ -126,6 +293,101 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             if user_text != etalon_text:
                 user_table.item(el_index, 0).setBackground(QtGui.QColor(255, 0, 0))
 
+    def draw_block(self, scene, x, y, bottom_text, bottom_left_text, middle_text, top_text, top_right_text, s_label,
+                   m_label):
+        from PyQt5.QtGui import QPolygonF
+
+        font = QFont("Arial", 12)
+
+        # Прямоугольник IAΔ
+        scene.addRect(x, y + 360, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(bottom_text, font).setPos(x + 30, y + 410)
+
+        # Треугольник M
+        polygon_m = QPolygonF([
+            QPointF(x - 150, y + 370),
+            QPointF(x - 90, y + 370),
+            QPointF(x - 120, y + 320)
+        ])
+        scene.addPolygon(polygon_m, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(m_label, font).setPos(x - 110, y + 320)
+        scene.addText(bottom_left_text, font).setPos(x - 150, y + 370)
+
+        # Треугольник S
+        polygon_s = QPolygonF([
+            QPointF(x - 90, y + 200),
+            QPointF(x - 30, y + 200),
+            QPointF(x - 60, y + 150)
+        ])
+        scene.addPolygon(polygon_s, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(s_label, font).setPos(x - 110, y + 180)
+        scene.addText(middle_text, font).setPos(x - 90, y + 200)
+
+        # овал сеть
+        scene.addEllipse(x + 70, y + 130, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+
+        # # Прямоугольник IP-ATC
+        # scene.addRect(x + 150, y + 100, 150, 100, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText(middle_text, font).setPos(x + 170, y + 150)
+
+
+
+        # Треугольник E+H1
+        polygon_eh1 = QPolygonF([
+            QPointF(x + 150, y + 100),
+            QPointF(x + 150, y),
+            QPointF(x + 225, y + 50)
+        ])
+        scene.addPolygon(polygon_eh1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(top_right_text, font).setPos(x + 160, y + 20)
+
+        # Текст T-76С
+        scene.addText(top_text, font).setPos(x + 170, y + 120)
+
+        # # Текст ΔX-500С
+        # scene.addText(bottom_left_text, font).setPos(x + 20, y + 300)
+
+    def draw_additional_elements(self, scene):
+        font = QFont("Arial", 12)
+
+        # Линии
+        # M-S
+        scene.addLine(-120, 320, -120, 170, QPen(Qt.black, 2))
+        scene.addLine(-120, 170, -73, 170, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(-115, 140)
+        scene.addText("Eth0", font).setPos(-60, 130)
+
+        # S-IA
+        scene.addLine(-38, 185, 50, 185, QPen(Qt.black, 2))
+        scene.addLine(50, 185, 50, 360, QPen(Qt.black, 2))
+        scene.addText("Eth1", font).setPos(-30, 160)
+        scene.addText("Eth1", font).setPos(10, 250)
+
+        # S-Network
+        scene.addLine(-38, 185, 50, 185, QPen(Qt.black, 2))
+
+
+        # Тексты сверху
+        scene.addText("Etho", font).setPos(250, 40)
+        scene.addText("Etho", font).setPos(550, 40)
+
+        # Дополнительные элементы между блоками
+        scene.addRect(300, 250, 50, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText("RTP", font).setPos(310, 260)
+
+        scene.addRect(350, 300, 50, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText("SIP", font).setPos(360, 310)
+
+        scene.addText("KUU-100", font).setPos(400, 350)
+
+        # Треугольник KUU-100
+        polygon_kuu = QPolygonF([
+            QPointF(450, 300),
+            QPointF(500, 300),
+            QPointF(475, 250)
+        ])
+        scene.addPolygon(polygon_kuu, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText("KUU-100", font).setPos(460, 260)
 
 if __name__ == "__main__":
     import sys

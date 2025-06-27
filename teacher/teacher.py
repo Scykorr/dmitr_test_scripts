@@ -26,8 +26,9 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.users_files_table.clicked.connect(
             lambda: self.show_checked_user_script(user_script_file=self.users_files_table.currentItem().text()))
         self.comboBox.currentTextChanged.connect(self.show_standard_file)
-        self.lineEdit_2.setText('10.125.20.250')
+        # self.lineEdit_2.setText('10.125.20.250')
         # self.lineEdit_2.setText('192.168.1.14')
+        self.lineEdit_2.setText('127.0.0.1')
         self.ip_address = self.lineEdit_2.text()
         self.pushButton_3.clicked.connect(lambda: self.choose_operator(page_index=1))
         self.pushButton_6.clicked.connect(lambda: self.choose_operator(page_index=3))
@@ -38,14 +39,14 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
     def choose_operator(self, page_index):
         if page_index == 1:
             self.stackedWidget.setCurrentIndex(page_index)
-            self.change_size(941, 561)
+            self.change_size(1400, 700)
             if self.comboBox.currentText() == '':
                 self.get_standard_files()
             self.show_standard_file()
             self.get_user_files()
         elif page_index == 2:
-            if '.txt' in self.users_files_table.currentItem().text():
-                self.change_size(721, 551)
+            if '.conf' in self.users_files_table.currentItem().text():
+                self.change_size(1400, 700)
                 self.stackedWidget.setCurrentIndex(page_index)
                 self.show_user_script(self.users_files_table.currentItem().text())
         elif page_index == 3:
@@ -57,9 +58,12 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         standard_file_amount = int(self.get_files_amout())
 
         for number in range(1, standard_file_amount + 1):
-            os.system(f'tftp {self.lineEdit_2.text()} GET {number}.txt')
-            shutil.copy2(f'{number}.txt', self.lineEdit_3.text())
-            os.remove(f'{number}.txt')
+            # os.system(f'tftp {self.lineEdit_2.text()} GET {number}.txt')
+            # shutil.copy2(f'{number}.txt', self.lineEdit_3.text())
+            # os.remove(f'{number}.txt')
+            os.system(f'tftp {self.lineEdit_2.text()} GET {number}.conf')
+            shutil.copy2(f'{number}.conf', self.lineEdit_3.text())
+            os.remove(f'{number}.conf')
 
         directory = self.lineEdit_3.text()
 
@@ -70,7 +74,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for file in files:
             for el in range(31):
-                if str(el) in file and '.txt' in file:
+                if str(el) in file and '.conf' in file:
                     standard_files.append(file)
                     break
 
@@ -84,8 +88,8 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         files += os.listdir(directory)
         users_files = list()
         for file in files:
-            print(file.split('.txt'))
-            if '.txt' in file and file.split('.txt')[0] not in map(str, range(31)):
+            print(file.split('.conf'))
+            if '.conf' in file and file.split('.conf')[0] not in map(str, range(31)):
                 users_files.append(file)
         self.users_files_table.setColumnCount(5)
         self.users_files_table.setRowCount(len(users_files))
@@ -100,7 +104,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
         file_name_standard = self.comboBox.currentText()
         if file_name_standard == '':
-            file_name_standard = '1.txt'
+            file_name_standard = '1.conf'
         os.system(f'tftp {self.lineEdit_2.text()} GET {file_name_standard}')
         with open(f'{file_name_standard}', 'r') as f_standard:
             st_text = f_standard.read()
@@ -142,7 +146,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
     def show_standard_file(self):
         file_name_standard = self.comboBox.currentText()
         if file_name_standard == '':
-            file_name_standard = '1.txt'
+            file_name_standard = '1.conf'
         os.system(f'tftp {self.lineEdit_2.text()} GET {file_name_standard}')
         with open(f'{file_name_standard}', 'r') as f_standard:
             st_text = f_standard.read()
@@ -164,13 +168,14 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for index_el, el in enumerate(standard_text_list):
             standard_table_second.setItem(index_el, 0, QtWidgets.QTableWidgetItem(str(el)))
-
+        standard_table_second.resizeColumnsToContents()
         pathlib.Path(f'{file_name_standard}').unlink()
 
         self.get_user_files()
 
     def show_user_script(self, user_script_file):
-        if '.txt' in user_script_file:
+        self.tableWidget_4.clear()
+        if '.conf' in user_script_file:
             file_name_standard = self.comboBox.currentText()
             os.system(f'tftp {self.lineEdit_2.text()} GET {file_name_standard}')
             with open(f'{file_name_standard}', 'r') as f_standard:
@@ -200,6 +205,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             pathlib.Path(f'{user_script_file}').unlink()
             pathlib.Path(f'{file_name_standard}').unlink()
             self.check_answer(standard_text_list, user_text_list)
+            user_table.resizeColumnsToContents()
 
     def check_answer(self, etalon_text_list, user_list):
         user_table = self.tableWidget_4
@@ -223,12 +229,14 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
             if user_text != etalon_text:
                 user_table.item(el_index, 0).setBackground(QtGui.QColor(255, 0, 0))
+        user_table.resizeColumnsToContents()
 
     def change_size(self, width, height):
         self.setFixedWidth(width)
         self.setFixedHeight(height)
 
     def show_checked_user_script(self, user_script_file):
+        self.tableWidget_2.clear()
         if self.users_files_table.currentColumn() == 0:
             file_name_standard = self.comboBox.currentText()
             os.system(f'tftp {self.lineEdit_2.text()} GET {file_name_standard}')
@@ -258,7 +266,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
                 if type(user_table.item(index_el, 0)) == NoneType:
                     user_table.setItem(index_el, 0, QtWidgets.QTableWidgetItem(str('')))
                 user_table.setItem(index_el, 0, QtWidgets.QTableWidgetItem(str(el)))
-
+            user_table.resizeColumnsToContents()
             pathlib.Path(f'{user_script_file}').unlink()
             pathlib.Path(f'{file_name_standard}').unlink()
             self.checked_user_script(standard_text_list, user_text_list)
@@ -280,6 +288,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
             if user_text != etalon_text:
                 user_table.item(el_index, 0).setBackground(QtGui.QColor(255, 0, 0))
+        user_table.resizeColumnsToContents()
 
     def add_standard(self):
         path_file_name = self.lineEdit_3.text()
@@ -291,7 +300,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
                 if str(el) in file:
                     standard_files.append(file)
         num = len(standard_files) + 1
-        file_name = f'{num}.txt'
+        file_name = f'{num}.conf'
         pathlib.Path(f'{file_name}').touch()
         pathlib.Path(f'{file_name}').write_text(self.textEdit.toPlainText())
         os.system(f'tftp {self.ip_address} PUT {file_name}')
@@ -301,7 +310,9 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.get_standard_files()
 
     def get_files_amout(self):
+        print(self.lineEdit_2.text())
         os.system(f'tftp {self.lineEdit_2.text()} get files_amount.txt')
+        print(f'tftp {self.lineEdit_2.text()} get files_amount.txt')
         with open(f'files_amount.txt', 'r') as f_amount:
             f_amount_result = f_amount.read().split()[0]
         os.remove(f'files_amount.txt')
