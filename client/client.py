@@ -213,7 +213,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             gray_brush = QBrush(QColor(192, 192, 192))
 
             # === Рисование блоков ===
-            self.draw_block(self.scene, 0, 0, "IAΔ", "ЦАТС\nΔX-500С", "IP-ATC\nT-76С", "T-76С", "E+H1", "S", "M")
+            self.draw_block(self.scene, 0, 0, "IAD", "ЦАТС\nDX-500С", "IP-ATC\nT-76С", "T-76С", "E+H1", "S", "M")
             # self.draw_block(self.scene, 350, 100, "UATC", "ΔX-500С", "IP-ATC", "T-76С", "E+H1", "S", "M")
             # self.draw_block(self.scene, 650, 100, "UATC", "ΔX-500С", "IP-ATC", "T-76С", "E+H1", "S", "M")
 
@@ -299,7 +299,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
         font = QFont("Arial", 12)
 
-        # Прямоугольник IAΔ
+        # Прямоугольник IAD
         scene.addRect(x, y + 360, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
         scene.addText(bottom_text, font).setPos(x + 30, y + 410)
 
@@ -322,9 +322,49 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         scene.addPolygon(polygon_s, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
         scene.addText(s_label, font).setPos(x - 110, y + 180)
         scene.addText(middle_text, font).setPos(x - 90, y + 200)
+        scene.addText("Eth0", font).setPos(-60, 130)
 
         # овал сеть
         scene.addEllipse(x + 70, y + 130, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+
+        # Треугольник S1
+        polygon_s1 = QPolygonF([
+            QPointF(x + 290, y + 200),
+            QPointF(x + 230, y + 200),
+            QPointF(x + 260, y + 150)
+        ])
+        scene.addPolygon(polygon_s1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(s_label, font).setPos(x + 290, y + 170)
+        scene.addText(middle_text, font).setPos(x + 230, y + 200)
+        scene.addText("Eth0", font).setPos(210, 130)
+
+        # Треугольник M1
+        polygon_m1 = QPolygonF([
+            QPointF(x + 450, y + 300),
+            QPointF(x + 390, y + 300),
+            QPointF(x + 420, y + 250)
+        ])
+        scene.addPolygon(polygon_m1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(m_label, font).setPos(x + 435, y + 250)
+        scene.addText(bottom_left_text, font).setPos(x + 390, y + 300)
+
+        # Треугольник DX 500C
+        polygon_ksh = QPolygonF([
+            QPointF(x + 300, y + 400),
+            QPointF(x + 240, y + 400),
+            QPointF(x + 270, y + 350)
+        ])
+        scene.addPolygon(polygon_ksh, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('DX-500С', font).setPos(x + 240, y + 400)
+
+        # Прямоугольник КШ-100
+        scene.addRect(x + 180, y + 350, 25, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('КШ-100', font).setPos(x + 160, y + 400)
+
+        # Прямоугольник маршрутизатор
+        scene.addRect(x + 160, y + 250, 60, 30, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        new_font = QFont("Arial", 16)
+        scene.addText('→\n←', font).setPos(x + 180, y + 240)
 
         # # Прямоугольник IP-ATC
         # scene.addRect(x + 150, y + 100, 150, 100, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
@@ -332,17 +372,17 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 
-        # Треугольник E+H1
-        polygon_eh1 = QPolygonF([
-            QPointF(x + 150, y + 100),
-            QPointF(x + 150, y),
-            QPointF(x + 225, y + 50)
-        ])
-        scene.addPolygon(polygon_eh1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText(top_right_text, font).setPos(x + 160, y + 20)
+        # # Треугольник E+H1
+        # polygon_eh1 = QPolygonF([
+        #     QPointF(x + 150, y + 100),
+        #     QPointF(x + 150, y),
+        #     QPointF(x + 225, y + 50)
+        # ])
+        # scene.addPolygon(polygon_eh1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText(top_right_text, font).setPos(x + 160, y + 20)
 
-        # Текст T-76С
-        scene.addText(top_text, font).setPos(x + 170, y + 120)
+        # # Текст T-76С
+        # scene.addText(top_text, font).setPos(x + 170, y + 120)
 
         # # Текст ΔX-500С
         # scene.addText(bottom_left_text, font).setPos(x + 20, y + 300)
@@ -355,7 +395,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         scene.addLine(-120, 320, -120, 170, QPen(Qt.black, 2))
         scene.addLine(-120, 170, -73, 170, QPen(Qt.black, 2))
         scene.addText("E1", font).setPos(-115, 140)
-        scene.addText("Eth0", font).setPos(-60, 130)
+
 
         # S-IA
         scene.addLine(-38, 185, 50, 185, QPen(Qt.black, 2))
@@ -364,30 +404,52 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         scene.addText("Eth1", font).setPos(10, 250)
 
         # S-Network
-        scene.addLine(-38, 185, 50, 185, QPen(Qt.black, 2))
+        scene.addLine(-53, 160, 70, 160, QPen(Qt.black, 2))
+
+        # Network-S1
+        scene.addLine(170, 160, 255, 160, QPen(Qt.black, 2))
+
+        # S1-M1
+        scene.addLine(269, 160, 420, 160, QPen(Qt.black, 2))
+        scene.addLine(420, 160, 420, 250, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(350, 130)
+
+        # S1-маршрутизатор
+        scene.addLine(190, 190, 235, 190, QPen(Qt.black, 2))
+        scene.addLine(190, 190, 190, 250, QPen(Qt.black, 2))
+        scene.addText("Eth1", font).setPos(150, 210)
+
+        # маршрутизатор-КШ-100
+        scene.addLine(185, 280, 185, 350, QPen(Qt.black, 2))
+        scene.addLine(200, 280, 200, 350, QPen(Qt.black, 2))
+        scene.addText("SIP", font).setPos(150, 300)
+        scene.addText("RTP", font).setPos(200, 300)
+
+       #КШ-100-DX-500C
+        scene.addLine(205, 370, 258, 370, QPen(Qt.black, 2))
 
 
-        # Тексты сверху
-        scene.addText("Etho", font).setPos(250, 40)
-        scene.addText("Etho", font).setPos(550, 40)
+        # # Тексты сверху
+        # scene.addText("Etho", font).setPos(250, 40)
+        # scene.addText("Etho", font).setPos(550, 40)
 
-        # Дополнительные элементы между блоками
-        scene.addRect(300, 250, 50, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText("RTP", font).setPos(310, 260)
-
-        scene.addRect(350, 300, 50, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText("SIP", font).setPos(360, 310)
-
-        scene.addText("KUU-100", font).setPos(400, 350)
-
-        # Треугольник KUU-100
-        polygon_kuu = QPolygonF([
-            QPointF(450, 300),
-            QPointF(500, 300),
-            QPointF(475, 250)
-        ])
-        scene.addPolygon(polygon_kuu, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText("KUU-100", font).setPos(460, 260)
+        # # Дополнительные элементы между блоками
+        # scene.addRect(300, 250, 50, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText("RTP", font).setPos(310, 260)
+        #
+        # scene.addRect(350, 300, 50, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText("SIP", font).setPos(360, 310)
+        #
+        # scene.addText("KUU-100", font).setPos(400, 350)
+        #
+        # # Треугольник KUU-100
+        # polygon_kuu = QPolygonF([
+        #     QPointF(450, 300),
+        #     QPointF(500, 300),
+        #     QPointF(475, 250)
+        # ])
+        # scene.addPolygon(polygon_kuu, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText("KUU-100", font).setPos(460, 260)
 
 if __name__ == "__main__":
     import sys
