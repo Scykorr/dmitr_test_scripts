@@ -58,13 +58,13 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.textEdit.append('}')
                 self.textEdit.append('NETWORK {')
                 self.textEdit.append('	IFACE {')
-                self.textEdit.append('		IFACE_NAME=eth1')
-                self.textEdit.append('		IP=172.16.2.1')
+                self.textEdit.append('		IFACE_NAME=')
+                self.textEdit.append('		IP=')
                 self.textEdit.append('		NETMASK=255.255.255.0')
                 self.textEdit.append('	}')
                 self.textEdit.append('	ROUTE {')
                 self.textEdit.append('		DEFAULT_GW=true')
-                self.textEdit.append('		GATEWAY=172.16.2.2')
+                self.textEdit.append('		GATEWAY=')
                 self.textEdit.append('		NETMASK=255.255.255.0')
                 self.textEdit.append('		IFACE_NAME=eth1')
                 self.textEdit.append('	}')
@@ -97,7 +97,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.textEdit.append('	IAX_ROUTE {')
                 self.textEdit.append('		NAME="ip_ats_1"')
                 self.textEdit.append('		TYPE="friend"')
-                self.textEdit.append('		HOST="172.16.1.1"')
+                self.textEdit.append('		HOST=""')
                 self.textEdit.append('		CONTEXT="main"')
                 self.textEdit.append('		TRUNK=true')
                 self.textEdit.append('		ALLOW="alaw"')
@@ -120,7 +120,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.textEdit.append('	PHONE {')
                 self.textEdit.append('		TYPE="friend"')
                 self.textEdit.append('		CONTEXT="main"')
-                self.textEdit.append('		HOST="172.16.1.1"')
+                self.textEdit.append('		HOST=""')
                 self.textEdit.append('		NUMBER=1')
                 self.textEdit.append('	}')
                 self.textEdit.append('}')
@@ -300,18 +300,23 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         font = QFont("Arial", 12)
 
         # Прямоугольник IAD
-        scene.addRect(x, y + 360, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText(bottom_text, font).setPos(x + 30, y + 410)
+        polygon_iad = QPolygonF([
+            QPointF(x - 90, y + 400),
+            QPointF(x - 30, y + 400),
+            QPointF(x - 60, y + 350)
+        ])
+        scene.addPolygon(polygon_iad, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(bottom_text, font).setPos(x - 75, y + 400)
 
         # Треугольник M
         polygon_m = QPolygonF([
-            QPointF(x - 150, y + 370),
-            QPointF(x - 90, y + 370),
-            QPointF(x - 120, y + 320)
+            QPointF(x - 250, y + 200),
+            QPointF(x - 190, y + 200),
+            QPointF(x - 220, y + 150)
         ])
         scene.addPolygon(polygon_m, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText(m_label, font).setPos(x - 110, y + 320)
-        scene.addText(bottom_left_text, font).setPos(x - 150, y + 370)
+        scene.addText(m_label, font).setPos(x - 215, y + 135)
+        scene.addText('DX-500C\n     №1', font).setPos(x - 255, y + 200)
 
         # Треугольник S
         polygon_s = QPolygonF([
@@ -320,12 +325,36 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             QPointF(x - 60, y + 150)
         ])
         scene.addPolygon(polygon_s, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText(s_label, font).setPos(x - 110, y + 180)
-        scene.addText(middle_text, font).setPos(x - 90, y + 200)
-        scene.addText("Eth0", font).setPos(-60, 130)
+        scene.addText(s_label, font).setPos(x - 90, y + 135)
+        scene.addText('IP ATC\nT-76C №1', font).setPos(x - 90, y + 200)
+        scene.addText("Eth0", font).setPos(-55, 135)
+
+        # numbers S
+        scene.addLine(-60, 150, -40, 120, QPen(Qt.black, 2))
+        scene.addLine(-60, 150, -80, 120, QPen(Qt.black, 2))
+        scene.addRect(x - 90, y + 95, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addRect(x - 50, y + 95, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+
+        # numbers S1
+        scene.addLine(260, 150, 280, 120, QPen(Qt.black, 2))
+        scene.addLine(260, 150, 240, 120, QPen(Qt.black, 2))
+        scene.addRect(x + 230, y + 95, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addRect(x + 270, y + 95, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+
+        # коммутатор 1
+        polygon_k1 = QPolygonF([
+            QPointF(x - 150, y + 300),
+            QPointF(x - 100, y + 300),
+            QPointF(x - 120, y + 330),
+            QPointF(x - 170, y + 330)
+        ])
+        scene.addPolygon(polygon_k1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('→', font).setPos(x - 147, y + 296)
+        scene.addText('←', font).setPos(x - 147, y + 306)
 
         # овал сеть
-        scene.addEllipse(x + 70, y + 130, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addEllipse(x + 30, y + 150, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText("ТСКП", font).setPos(55, 160)
 
         # Треугольник S1
         polygon_s1 = QPolygonF([
@@ -334,19 +363,19 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             QPointF(x + 260, y + 150)
         ])
         scene.addPolygon(polygon_s1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText(s_label, font).setPos(x + 290, y + 170)
-        scene.addText(middle_text, font).setPos(x + 230, y + 200)
-        scene.addText("Eth0", font).setPos(210, 130)
+        scene.addText(s_label, font).setPos(x + 270, y + 135)
+        scene.addText('IP ATC\nT-76C №2', font).setPos(x + 230, y + 200)
+        scene.addText("Eth0", font).setPos(210, 135)
 
         # Треугольник M1
         polygon_m1 = QPolygonF([
-            QPointF(x + 450, y + 300),
-            QPointF(x + 390, y + 300),
-            QPointF(x + 420, y + 250)
+            QPointF(x + 450, y + 200),
+            QPointF(x + 390, y + 200),
+            QPointF(x + 420, y + 150)
         ])
         scene.addPolygon(polygon_m1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText(m_label, font).setPos(x + 435, y + 250)
-        scene.addText(bottom_left_text, font).setPos(x + 390, y + 300)
+        scene.addText(m_label, font).setPos(x + 390, y + 135)
+        scene.addText('DX-500C\n     №2', font).setPos(x + 385, y + 200)
 
         # Треугольник DX 500C
         polygon_ksh = QPolygonF([
@@ -355,16 +384,23 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             QPointF(x + 270, y + 350)
         ])
         scene.addPolygon(polygon_ksh, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addText('DX-500С', font).setPos(x + 240, y + 400)
+        scene.addText('DX-500C\n     №3', font).setPos(x + 240, y + 400)
+
 
         # Прямоугольник КШ-100
         scene.addRect(x + 180, y + 350, 25, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
         scene.addText('КШ-100', font).setPos(x + 160, y + 400)
 
-        # Прямоугольник маршрутизатор
-        scene.addRect(x + 160, y + 250, 60, 30, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        new_font = QFont("Arial", 16)
-        scene.addText('→\n←', font).setPos(x + 180, y + 240)
+        # коммутатор 2
+        polygon_k1 = QPolygonF([
+            QPointF(x + 180, y + 250),
+            QPointF(x + 230, y + 250),
+            QPointF(x + 210, y + 280),
+            QPointF(x + 160, y + 280)
+        ])
+        scene.addPolygon(polygon_k1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('→', font).setPos(x + 183, y + 245)
+        scene.addText('←', font).setPos(x + 183, y + 254)
 
         # # Прямоугольник IP-ATC
         # scene.addRect(x + 150, y + 100, 150, 100, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
@@ -392,27 +428,33 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Линии
         # M-S
-        scene.addLine(-120, 320, -120, 170, QPen(Qt.black, 2))
-        scene.addLine(-120, 170, -73, 170, QPen(Qt.black, 2))
-        scene.addText("E1", font).setPos(-115, 140)
+        scene.addLine(-212, 160, -68, 160, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(-155, 135)
 
 
-        # S-IA
-        scene.addLine(-38, 185, 50, 185, QPen(Qt.black, 2))
-        scene.addLine(50, 185, 50, 360, QPen(Qt.black, 2))
-        scene.addText("Eth1", font).setPos(-30, 160)
-        scene.addText("Eth1", font).setPos(10, 250)
+        # S-коммутатор
+        scene.addLine(-120, 195, -89, 195, QPen(Qt.black, 2))
+        scene.addLine(-120, 195, -120, 300, QPen(Qt.black, 2))
+        scene.addText("Eth1", font).setPos(-125, 170)
+
+        # коммутатор-IAD
+        scene.addLine(-130, 330, -130, 360, QPen(Qt.black, 2))
+        scene.addLine(-150, 330, -150, 380, QPen(Qt.black, 2))
+        scene.addLine(-130, 360, -68, 360, QPen(Qt.black, 2))
+        scene.addLine(-150, 380, -80, 380, QPen(Qt.black, 2))
+        scene.addText("SIP", font).setPos(-115, 335)
+        scene.addText("RTP", font).setPos(-140, 377)
+
 
         # S-Network
-        scene.addLine(-53, 160, 70, 160, QPen(Qt.black, 2))
+        scene.addLine(-53, 160, 41, 160, QPen(Qt.black, 2))
 
         # Network-S1
-        scene.addLine(170, 160, 255, 160, QPen(Qt.black, 2))
+        scene.addLine(122, 160, 255, 160, QPen(Qt.black, 2))
 
         # S1-M1
-        scene.addLine(269, 160, 420, 160, QPen(Qt.black, 2))
-        scene.addLine(420, 160, 420, 250, QPen(Qt.black, 2))
-        scene.addText("E1", font).setPos(350, 130)
+        scene.addLine(269, 160, 412, 160, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(330, 135)
 
         # S1-маршрутизатор
         scene.addLine(190, 190, 235, 190, QPen(Qt.black, 2))
@@ -427,6 +469,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
        #КШ-100-DX-500C
         scene.addLine(205, 370, 258, 370, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(220, 348)
 
 
         # # Тексты сверху
