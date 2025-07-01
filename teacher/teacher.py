@@ -4,8 +4,9 @@ from datetime import datetime
 from types import NoneType
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QHeaderView
+from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtGui import QPen, QFont, QColor, QBrush
+from PyQt5.QtWidgets import QHeaderView, QGraphicsScene
 
 from GUI.teacher import Ui_MainWindow
 import shutil
@@ -34,16 +35,33 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_6.clicked.connect(lambda: self.choose_operator(page_index=3))
         self.pushButton_5.clicked.connect(lambda: self.choose_operator(page_index=1))
         self.pushButton_4.clicked.connect(self.add_standard)
+        self.lineEdit_13.textChanged.connect(self.draw_scheme)
+        self.lineEdit_14.textChanged.connect(self.draw_scheme)
+        self.lineEdit_15.textChanged.connect(self.draw_scheme)
+        self.lineEdit_16.textChanged.connect(self.draw_scheme)
+        self.lineEdit_33.textChanged.connect(self.draw_scheme)
+        self.lineEdit_34.textChanged.connect(self.draw_scheme)
+        self.lineEdit_35.textChanged.connect(self.draw_scheme)
+        self.lineEdit_36.textChanged.connect(self.draw_scheme)
+        self.lineEdit_37.textChanged.connect(self.draw_scheme)
+        self.lineEdit_38.textChanged.connect(self.draw_scheme)
+        self.lineEdit_39.textChanged.connect(self.draw_scheme)
+        self.lineEdit_40.textChanged.connect(self.draw_scheme)
+        self.lineEdit_41.textChanged.connect(self.draw_scheme)
+        self.lineEdit_42.textChanged.connect(self.draw_scheme)
+        self.lineEdit_43.textChanged.connect(self.draw_scheme)
+        self.lineEdit_44.textChanged.connect(self.draw_scheme)
         self.get_files_amout()
 
     def choose_operator(self, page_index):
         if page_index == 1:
             self.stackedWidget.setCurrentIndex(page_index)
-            self.change_size(1400, 700)
+            self.change_size(1400, 991)
             if self.comboBox.currentText() == '':
                 self.get_standard_files()
             self.show_standard_file()
             self.get_user_files()
+            self.draw_scheme()
         elif page_index == 2:
             if '.conf' in self.users_files_table.currentItem().text():
                 self.change_size(1400, 700)
@@ -326,6 +344,237 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             f_amount.write(str(int(f_amount_result) + 1))
         os.system(f'tftp {self.lineEdit_2.text()} put files_amount.txt')
         os.remove(f'files_amount.txt')
+
+    def draw_scheme(self):
+        # === Очистка старой сцены (если была) ===
+        if hasattr(self, 'scene'):
+            self.scene.clear()
+        else:
+            self.scene = QGraphicsScene()
+
+        # === Настройка стилей ===
+        black_pen = QPen(Qt.black, 2)
+        gray_brush = QBrush(QColor(192, 192, 192))
+
+        # === Рисование блоков ===
+        self.draw_block(self.scene, 0, 0, "IAD", "ЦАТС\nDX-500С", "IP-ATC\nT-76С", "T-76С", "E+H1", "S", "M")
+        # self.draw_block(self.scene, 350, 100, "UATC", "ΔX-500С", "IP-ATC", "T-76С", "E+H1", "S", "M")
+        # self.draw_block(self.scene, 650, 100, "UATC", "ΔX-500С", "IP-ATC", "T-76С", "E+H1", "S", "M")
+
+        # === Добавление дополнительных элементов ===
+        self.draw_additional_elements(self.scene)
+
+        # === Привязка сцены к view ===
+        self.graphicsView.setScene(self.scene)
+        self.graphicsView.setRenderHint(QtGui.QPainter.Antialiasing)
+
+    def draw_block(self, scene, x, y, bottom_text, bottom_left_text, middle_text, top_text, top_right_text, s_label,
+                   m_label):
+        from PyQt5.QtGui import QPolygonF
+
+        font = QFont("Arial", 12)
+
+        # Прямоугольник IAD
+        polygon_iad = QPolygonF([
+            QPointF(x - 90, y + 400),
+            QPointF(x - 30, y + 400),
+            QPointF(x - 60, y + 350)
+        ])
+        scene.addPolygon(polygon_iad, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(bottom_text, font).setPos(x - 75, y + 400)
+
+        # Треугольник M
+        polygon_m = QPolygonF([
+            QPointF(x - 250, y + 200),
+            QPointF(x - 190, y + 200),
+            QPointF(x - 220, y + 150)
+        ])
+        scene.addPolygon(polygon_m, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(m_label, font).setPos(x - 215, y + 135)
+        scene.addText('DX-500C\n     №1', font).setPos(x - 255, y + 200)
+
+        # Треугольник S
+        polygon_s = QPolygonF([
+            QPointF(x - 90, y + 200),
+            QPointF(x - 30, y + 200),
+            QPointF(x - 60, y + 150)
+        ])
+        scene.addPolygon(polygon_s, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(s_label, font).setPos(x - 90, y + 135)
+        scene.addText('IP ATC\nT-76C №1', font).setPos(x - 90, y + 200)
+        scene.addText("Eth0", font).setPos(-55, 135)
+
+        # numbers S
+        scene.addLine(-60, 150, -40, 100, QPen(Qt.black, 2))
+        scene.addLine(-60, 150, -80, 100, QPen(Qt.black, 2))
+        scene.addRect(x - 90, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addRect(x - 50, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+
+        # numbers S1
+        scene.addLine(260, 150, 280, 100, QPen(Qt.black, 2))
+        scene.addLine(260, 150, 240, 100, QPen(Qt.black, 2))
+        scene.addRect(x + 230, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addRect(x + 270, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+
+        # коммутатор 1
+        polygon_k1 = QPolygonF([
+            QPointF(x - 150, y + 300),
+            QPointF(x - 100, y + 300),
+            QPointF(x - 120, y + 330),
+            QPointF(x - 170, y + 330)
+        ])
+        scene.addPolygon(polygon_k1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('→', font).setPos(x - 147, y + 296)
+        scene.addText('←', font).setPos(x - 147, y + 306)
+
+        # овал сеть
+        scene.addEllipse(x + 30, y + 150, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText("ТСКП", font).setPos(55, 160)
+
+        # Треугольник S1
+        polygon_s1 = QPolygonF([
+            QPointF(x + 290, y + 200),
+            QPointF(x + 230, y + 200),
+            QPointF(x + 260, y + 150)
+        ])
+        scene.addPolygon(polygon_s1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(s_label, font).setPos(x + 270, y + 135)
+        scene.addText('IP ATC\nT-76C №2', font).setPos(x + 230, y + 200)
+        scene.addText("Eth0", font).setPos(210, 135)
+
+        # Треугольник M1
+        polygon_m1 = QPolygonF([
+            QPointF(x + 450, y + 200),
+            QPointF(x + 390, y + 200),
+            QPointF(x + 420, y + 150)
+        ])
+        scene.addPolygon(polygon_m1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(m_label, font).setPos(x + 390, y + 135)
+        scene.addText('DX-500C\n     №2', font).setPos(x + 385, y + 200)
+
+        # Треугольник DX 500C
+        polygon_ksh = QPolygonF([
+            QPointF(x + 300, y + 400),
+            QPointF(x + 240, y + 400),
+            QPointF(x + 270, y + 350)
+        ])
+        scene.addPolygon(polygon_ksh, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('DX-500C\n     №3', font).setPos(x + 240, y + 400)
+
+        # Прямоугольник КШ-100
+        scene.addRect(x + 180, y + 350, 25, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('КШ-100', font).setPos(x + 160, y + 400)
+
+        # коммутатор 2
+        polygon_k1 = QPolygonF([
+            QPointF(x + 180, y + 250),
+            QPointF(x + 230, y + 250),
+            QPointF(x + 210, y + 280),
+            QPointF(x + 160, y + 280)
+        ])
+        scene.addPolygon(polygon_k1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('→', font).setPos(x + 183, y + 245)
+        scene.addText('←', font).setPos(x + 183, y + 254)
+
+        # # Прямоугольник IP-ATC
+        # scene.addRect(x + 150, y + 100, 150, 100, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText(middle_text, font).setPos(x + 170, y + 150)
+
+        # # Треугольник E+H1
+        # polygon_eh1 = QPolygonF([
+        #     QPointF(x + 150, y + 100),
+        #     QPointF(x + 150, y),
+        #     QPointF(x + 225, y + 50)
+        # ])
+        # scene.addPolygon(polygon_eh1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText(top_right_text, font).setPos(x + 160, y + 20)
+
+        # # Текст T-76С
+        # scene.addText(top_text, font).setPos(x + 170, y + 120)
+
+        # # Текст ΔX-500С
+        # scene.addText(bottom_left_text, font).setPos(x + 20, y + 300)
+
+    def draw_additional_elements(self, scene):
+        font = QFont("Arial", 12)
+
+        # изменяемые подписи
+        # IP ATC T-76C №1
+
+        # IP ATC T-76C №2
+
+        # SIP,RPT Слева
+
+        # SIP,RPT Справа
+
+        # IP ATC T-76C №1 порты
+        scene.addText(self.lineEdit_13.text(), font).setPos(-103, 110)
+        scene.addText(self.lineEdit_14.text(), font).setPos(-50, 110)
+
+        # IP ATC T-76C №2 порты
+        scene.addText(self.lineEdit_15.text(), font).setPos(220, 110)
+        scene.addText(self.lineEdit_16.text(), font).setPos(270, 110)
+
+        # IP ATC T-76C №1 номера
+        scene.addText(self.lineEdit_33.text() + '-\n' + self.lineEdit_34.text(), font).setPos(-100, 30)
+
+        # IP ATC T-76C №2 номера
+        scene.addText(self.lineEdit_35.text() + '-\n' + self.lineEdit_36.text(), font).setPos(220, 30)
+
+        # DX-500C №1 номера
+        scene.addText(self.lineEdit_37.text() + '-\n' + self.lineEdit_38.text(), font).setPos(-270, 110)
+
+        # DX-500C №2 номера
+        scene.addText(self.lineEdit_39.text() + '-\n' + self.lineEdit_40.text(), font).setPos(410, 110)
+
+        # DX-500C №3 номера
+        scene.addText(self.lineEdit_41.text() + '-\n' + self.lineEdit_42.text(), font).setPos(260, 310)
+
+        # IAD номера
+        scene.addText(self.lineEdit_43.text() + '-\n' + self.lineEdit_44.text(), font).setPos(-70, 310)
+
+        # Линии
+        # M-S
+        scene.addLine(-212, 160, -68, 160, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(-155, 135)
+
+        # S-коммутатор
+        scene.addLine(-120, 195, -89, 195, QPen(Qt.black, 2))
+        scene.addLine(-120, 195, -120, 300, QPen(Qt.black, 2))
+        scene.addText("Eth1", font).setPos(-125, 170)
+
+        # коммутатор-IAD
+        scene.addLine(-130, 330, -130, 360, QPen(Qt.black, 2))
+        scene.addLine(-150, 330, -150, 380, QPen(Qt.black, 2))
+        scene.addLine(-130, 360, -68, 360, QPen(Qt.black, 2))
+        scene.addLine(-150, 380, -80, 380, QPen(Qt.black, 2))
+        scene.addText("SIP", font).setPos(-115, 335)
+        scene.addText("RTP", font).setPos(-140, 377)
+
+        # S-Network
+        scene.addLine(-53, 160, 41, 160, QPen(Qt.black, 2))
+
+        # Network-S1
+        scene.addLine(122, 160, 255, 160, QPen(Qt.black, 2))
+
+        # S1-M1
+        scene.addLine(269, 160, 412, 160, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(330, 135)
+
+        # S1-маршрутизатор
+        scene.addLine(190, 190, 235, 190, QPen(Qt.black, 2))
+        scene.addLine(190, 190, 190, 250, QPen(Qt.black, 2))
+        scene.addText("Eth1", font).setPos(150, 210)
+
+        # маршрутизатор-КШ-100
+        scene.addLine(185, 280, 185, 350, QPen(Qt.black, 2))
+        scene.addLine(200, 280, 200, 350, QPen(Qt.black, 2))
+        scene.addText("SIP", font).setPos(150, 300)
+        scene.addText("RTP", font).setPos(200, 300)
+
+        # КШ-100-DX-500C
+        scene.addLine(205, 370, 258, 370, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(220, 348)
 
 
 if __name__ == "__main__":

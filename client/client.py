@@ -30,6 +30,22 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton.clicked.connect(lambda: self.choose_operator(page_index=2))
         self.lineEdit.setText('')
         self.lineEdit_4.setText('1.conf')
+        self.lineEdit_13.textChanged.connect(self.draw_scheme)
+        self.lineEdit_14.textChanged.connect(self.draw_scheme)
+        self.lineEdit_15.textChanged.connect(self.draw_scheme)
+        self.lineEdit_16.textChanged.connect(self.draw_scheme)
+        self.lineEdit_33.textChanged.connect(self.draw_scheme)
+        self.lineEdit_34.textChanged.connect(self.draw_scheme)
+        self.lineEdit_35.textChanged.connect(self.draw_scheme)
+        self.lineEdit_36.textChanged.connect(self.draw_scheme)
+        self.lineEdit_37.textChanged.connect(self.draw_scheme)
+        self.lineEdit_38.textChanged.connect(self.draw_scheme)
+        self.lineEdit_39.textChanged.connect(self.draw_scheme)
+        self.lineEdit_40.textChanged.connect(self.draw_scheme)
+        self.lineEdit_41.textChanged.connect(self.draw_scheme)
+        self.lineEdit_42.textChanged.connect(self.draw_scheme)
+        self.lineEdit_43.textChanged.connect(self.draw_scheme)
+        self.lineEdit_44.textChanged.connect(self.draw_scheme)
         user_file_name = list()
 
     def check_user_file_name(self, filename):
@@ -49,7 +65,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             err_dialog.showMessage("Данный пользователь уже прошел тестирование!")
             os.remove(f'{self.file_name}.conf')
         elif page_index == 1 and self.lineEdit.text() != "":
-            self.change_size(1450, 511)
+            self.change_size(1450, 731)
             self.stackedWidget.setCurrentIndex(page_index)
             standard_num = self.lineEdit_4.text().split('.conf')[0]
             if standard_num == '1':
@@ -293,6 +309,29 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             if user_text != etalon_text:
                 user_table.item(el_index, 0).setBackground(QtGui.QColor(255, 0, 0))
 
+    def draw_scheme(self):
+        # === Очистка старой сцены (если была) ===
+        if hasattr(self, 'scene'):
+            self.scene.clear()
+        else:
+            self.scene = QGraphicsScene()
+
+        # === Настройка стилей ===
+        black_pen = QPen(Qt.black, 2)
+        gray_brush = QBrush(QColor(192, 192, 192))
+
+        # === Рисование блоков ===
+        self.draw_block(self.scene, 0, 0, "IAD", "ЦАТС\nDX-500С", "IP-ATC\nT-76С", "T-76С", "E+H1", "S", "M")
+        # self.draw_block(self.scene, 350, 100, "UATC", "ΔX-500С", "IP-ATC", "T-76С", "E+H1", "S", "M")
+        # self.draw_block(self.scene, 650, 100, "UATC", "ΔX-500С", "IP-ATC", "T-76С", "E+H1", "S", "M")
+
+        # === Добавление дополнительных элементов ===
+        self.draw_additional_elements(self.scene)
+
+        # === Привязка сцены к view ===
+        self.graphicsView.setScene(self.scene)
+        self.graphicsView.setRenderHint(QtGui.QPainter.Antialiasing)
+
     def draw_block(self, scene, x, y, bottom_text, bottom_left_text, middle_text, top_text, top_right_text, s_label,
                    m_label):
         from PyQt5.QtGui import QPolygonF
@@ -330,16 +369,16 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         scene.addText("Eth0", font).setPos(-55, 135)
 
         # numbers S
-        scene.addLine(-60, 150, -40, 120, QPen(Qt.black, 2))
-        scene.addLine(-60, 150, -80, 120, QPen(Qt.black, 2))
-        scene.addRect(x - 90, y + 95, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addRect(x - 50, y + 95, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addLine(-60, 150, -40, 100, QPen(Qt.black, 2))
+        scene.addLine(-60, 150, -80, 100, QPen(Qt.black, 2))
+        scene.addRect(x - 90, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addRect(x - 50, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
 
         # numbers S1
-        scene.addLine(260, 150, 280, 120, QPen(Qt.black, 2))
-        scene.addLine(260, 150, 240, 120, QPen(Qt.black, 2))
-        scene.addRect(x + 230, y + 95, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
-        scene.addRect(x + 270, y + 95, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addLine(260, 150, 280, 100, QPen(Qt.black, 2))
+        scene.addLine(260, 150, 240, 100, QPen(Qt.black, 2))
+        scene.addRect(x + 230, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addRect(x + 270, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
 
         # коммутатор 1
         polygon_k1 = QPolygonF([
@@ -425,6 +464,41 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def draw_additional_elements(self, scene):
         font = QFont("Arial", 12)
+
+        # изменяемые подписи
+        # IP ATC T-76C №1
+
+        # IP ATC T-76C №2
+
+        # SIP,RPT Слева
+
+        # SIP,RPT Справа
+
+        # IP ATC T-76C №1 порты
+        scene.addText(self.lineEdit_13.text(), font).setPos(-103, 110)
+        scene.addText(self.lineEdit_14.text(), font).setPos(-50, 110)
+
+        # IP ATC T-76C №2 порты
+        scene.addText(self.lineEdit_15.text(), font).setPos(220, 110)
+        scene.addText(self.lineEdit_16.text(), font).setPos(270, 110)
+
+        # IP ATC T-76C №1 номера
+        scene.addText(self.lineEdit_33.text() + '-\n' + self.lineEdit_34.text(), font).setPos(-100, 30)
+
+        # IP ATC T-76C №2 номера
+        scene.addText(self.lineEdit_35.text() + '-\n' + self.lineEdit_36.text(), font).setPos(220, 30)
+
+        # DX-500C №1 номера
+        scene.addText(self.lineEdit_37.text() + '-\n' + self.lineEdit_38.text(), font).setPos(-270, 110)
+
+        # DX-500C №2 номера
+        scene.addText(self.lineEdit_39.text() + '-\n' + self.lineEdit_40.text(), font).setPos(410, 110)
+
+        # DX-500C №3 номера
+        scene.addText(self.lineEdit_41.text() + '-\n' + self.lineEdit_42.text(), font).setPos(260, 310)
+
+        # IAD номера
+        scene.addText(self.lineEdit_43.text() + '-\n' + self.lineEdit_44.text(), font).setPos(-70, 310)
 
         # Линии
         # M-S
