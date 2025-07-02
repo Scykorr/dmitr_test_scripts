@@ -1,5 +1,6 @@
 import pathlib
 import os
+import time
 from datetime import datetime
 from types import NoneType
 
@@ -34,7 +35,10 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_3.clicked.connect(lambda: self.choose_operator(page_index=1))
         self.pushButton_6.clicked.connect(lambda: self.choose_operator(page_index=3))
         self.pushButton_5.clicked.connect(lambda: self.choose_operator(page_index=1))
+        self.pushButton_9.clicked.connect(lambda: self.choose_operator(page_index=4))
+        self.pushButton_7.clicked.connect(lambda: self.choose_operator(page_index=1))
         self.pushButton_4.clicked.connect(self.add_standard)
+        self.pushButton_8.clicked.connect(self.add_user_config)
         self.lineEdit_13.textChanged.connect(self.draw_scheme)
         self.lineEdit_14.textChanged.connect(self.draw_scheme)
         self.lineEdit_15.textChanged.connect(self.draw_scheme)
@@ -51,7 +55,8 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lineEdit_42.textChanged.connect(self.draw_scheme)
         self.lineEdit_43.textChanged.connect(self.draw_scheme)
         self.lineEdit_44.textChanged.connect(self.draw_scheme)
-        self.get_files_amout()
+        # self.get_files_amout()
+        # self.get_files_amount_var()
 
     def choose_operator(self, page_index):
         if page_index == 1:
@@ -59,6 +64,8 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             self.change_size(1400, 991)
             if self.comboBox.currentText() == '':
                 self.get_standard_files()
+            if self.comboBox_2.currentText() == '':
+                self.get_standard_files_var()
             self.show_standard_file()
             self.get_user_files()
             self.draw_scheme()
@@ -68,6 +75,9 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.stackedWidget.setCurrentIndex(page_index)
                 self.show_user_script(self.users_files_table.currentItem().text())
         elif page_index == 3:
+            self.change_size(448, 561)
+            self.stackedWidget.setCurrentIndex(page_index)
+        elif page_index == 4:
             self.change_size(448, 561)
             self.stackedWidget.setCurrentIndex(page_index)
 
@@ -92,12 +102,41 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
 
         for file in files:
             for el in range(31):
-                if str(el) in file and '.conf' in file:
+                if str(el) in file and '.conf' in file and 'var_' not in file:
                     standard_files.append(file)
                     break
 
         self.comboBox.clear()
         self.comboBox.addItems(standard_files)
+
+    def get_standard_files_var(self):
+
+        standard_file_amount = int(self.get_files_amount_var())
+
+        for number in range(1, standard_file_amount + 1):
+            # os.system(f'tftp {self.lineEdit_2.text()} GET {number}.txt')
+            # shutil.copy2(f'{number}.txt', self.lineEdit_3.text())
+            # os.remove(f'{number}.txt')
+            os.system(f'tftp {self.lineEdit_2.text()} GET var_{number}.conf')
+            time.sleep(0.5)
+            shutil.copy2(f'var_{number}.conf', self.lineEdit_3.text())
+            os.remove(f'var_{number}.conf')
+
+        directory = self.lineEdit_3.text()
+
+        files = list()
+
+        files += os.listdir(directory)
+        standard_files = list()
+
+        for file in files:
+            for el in range(31):
+                if str(el) in file and '.conf' in file and 'var_' in file:
+                    standard_files.append(file)
+                    break
+
+        self.comboBox_2.clear()
+        self.comboBox_2.addItems(standard_files)
 
     def get_user_files(self):
         directory = self.lineEdit_3.text()
@@ -107,7 +146,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         users_files = list()
         for file in files:
             print(file.split('.conf'))
-            if '.conf' in file and file.split('.conf')[0] not in map(str, range(31)):
+            if '.conf' in file and file.split('.conf')[0] not in map(str, range(31)) and 'var_' not in file:
                 users_files.append(file)
         self.users_files_table.setColumnCount(5)
         self.users_files_table.setRowCount(len(users_files))
@@ -327,6 +366,28 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.update_files_amount()
         self.get_standard_files()
 
+    def add_user_config(self):
+        path_file_name = self.lineEdit_3.text()
+        files = list()
+        files += os.listdir(path_file_name)
+        standard_files = list()
+        for file in files:
+            for el in range(31):
+                if 'var_'+str(el) in file:
+                    standard_files.append(file)
+        num = len(standard_files) + 1
+        print(num)
+        file_name = f'var_{num}.conf'
+        print(file_name)
+        pathlib.Path(f'{file_name}').touch()
+        pathlib.Path(f'{file_name}').write_text(self.textEdit_2.toPlainText())
+        os.system(f'tftp {self.ip_address} PUT {file_name}')
+        self.textEdit_2.clear()
+        pathlib.Path(f'{file_name}').unlink()
+        print(file_name)
+        self.update_files_amount_var()
+        self.get_standard_files_var()
+
     def get_files_amout(self):
         print(self.lineEdit_2.text())
         os.system(f'tftp {self.lineEdit_2.text()} get files_amount.txt')
@@ -334,6 +395,13 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         with open(f'files_amount.txt', 'r') as f_amount:
             f_amount_result = f_amount.read().split()[0]
         os.remove(f'files_amount.txt')
+        return f_amount_result
+
+    def get_files_amount_var(self):
+        os.system(f'tftp {self.lineEdit_2.text()} get files_amount_var.txt')
+        with open(f'files_amount_var.txt', 'r') as f_amount:
+            f_amount_result = f_amount.read().split()[0]
+        os.remove(f'files_amount_var.txt')
         return f_amount_result
 
     def update_files_amount(self):
@@ -344,6 +412,15 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             f_amount.write(str(int(f_amount_result) + 1))
         os.system(f'tftp {self.lineEdit_2.text()} put files_amount.txt')
         os.remove(f'files_amount.txt')
+
+    def update_files_amount_var(self):
+        os.system(f'tftp {self.lineEdit_2.text()} get files_amount_var.txt')
+        with open(f'files_amount_var.txt', 'r') as f_amount:
+            f_amount_result = f_amount.read().split()[0]
+        with open(f'files_amount_var.txt', 'w') as f_amount:
+            f_amount.write(str(int(f_amount_result) + 1))
+        os.system(f'tftp {self.lineEdit_2.text()} put files_amount_var.txt')
+        os.remove(f'files_amount_var.txt')
 
     def draw_scheme(self):
         # === Очистка старой сцены (если была) ===
