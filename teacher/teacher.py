@@ -2,6 +2,7 @@ import pathlib
 import os
 import time
 from datetime import datetime
+from time import sleep
 from types import NoneType
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -55,6 +56,10 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lineEdit_42.textChanged.connect(self.draw_scheme)
         self.lineEdit_43.textChanged.connect(self.draw_scheme)
         self.lineEdit_44.textChanged.connect(self.draw_scheme)
+        self.pushButton_10.clicked.connect(self.add_scheme_config)
+        self.pushButton_13.clicked.connect(self.show_schema_etalon)
+        self.pushButton_11.clicked.connect(lambda: self.choose_operator(page_index=5))
+        self.pushButton_12.clicked.connect(lambda: self.choose_operator(page_index=1))
         # self.get_files_amout()
         # self.get_files_amount_var()
 
@@ -79,6 +84,9 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             self.stackedWidget.setCurrentIndex(page_index)
         elif page_index == 4:
             self.change_size(448, 561)
+            self.stackedWidget.setCurrentIndex(page_index)
+        elif page_index == 5:
+            self.change_size(1400, 991)
             self.stackedWidget.setCurrentIndex(page_index)
 
     def get_standard_files(self):
@@ -373,7 +381,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         standard_files = list()
         for file in files:
             for el in range(31):
-                if 'var_'+str(el) in file:
+                if 'var_' + str(el) in file:
                     standard_files.append(file)
         num = len(standard_files) + 1
         print(num)
@@ -391,6 +399,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
     def get_files_amout(self):
         print(self.lineEdit_2.text())
         os.system(f'tftp {self.lineEdit_2.text()} get files_amount.txt')
+        time.sleep(0.5)
         print(f'tftp {self.lineEdit_2.text()} get files_amount.txt')
         with open(f'files_amount.txt', 'r') as f_amount:
             f_amount_result = f_amount.read().split()[0]
@@ -444,6 +453,10 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         # === Привязка сцены к view ===
         self.graphicsView.setScene(self.scene)
         self.graphicsView.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.graphicsView_2.setScene(self.scene)
+        self.graphicsView_2.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.graphicsView_3.setScene(self.scene)
+        self.graphicsView_3.setRenderHint(QtGui.QPainter.Antialiasing)
 
     def draw_block(self, scene, x, y, bottom_text, bottom_left_text, middle_text, top_text, top_right_text, s_label,
                    m_label):
@@ -652,6 +665,55 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         # КШ-100-DX-500C
         scene.addLine(205, 370, 258, 370, QPen(Qt.black, 2))
         scene.addText("E1", font).setPos(220, 348)
+
+    def add_scheme_config(self):
+        filename_schema_etalon = 'scheme_etalon.txt'
+        with open(filename_schema_etalon, 'w') as f_etalon:
+            fields_list = list()
+            fields_list = [self.lineEdit_5.text(), self.lineEdit_6.text(), self.lineEdit_7.text(),
+                           self.lineEdit_8.text(), self.lineEdit_9.text(), self.lineEdit_10.text(),
+                           self.lineEdit_11.text(), self.lineEdit_12.text(), self.lineEdit_13.text(),
+                           self.lineEdit_14.text(), self.lineEdit_15.text(), self.lineEdit_16.text(),
+                           self.lineEdit_33.text(), self.lineEdit_34.text(), self.lineEdit_35.text(),
+                           self.lineEdit_36.text(), self.lineEdit_37.text(), self.lineEdit_38.text(),
+                           self.lineEdit_39.text(), self.lineEdit_40.text(), self.lineEdit_41.text(),
+                           self.lineEdit_42.text(), self.lineEdit_43.text(), self.lineEdit_44.text(), ]
+            res_text = '\n'.join(fields_list)
+            f_etalon.write(res_text)
+        os.system(f'tftp {self.ip_address} PUT {filename_schema_etalon}')
+        os.remove('scheme_etalon.txt')
+
+    def show_schema_etalon(self):
+        filename_schema_etalon = 'scheme_etalon.txt'
+        os.system(f'tftp {self.ip_address} GET {filename_schema_etalon}')
+        with open(filename_schema_etalon, 'r') as f_etalon:
+            lines = [line.strip() for line in f_etalon.readlines()]
+            print(lines)
+        self.lineEdit_5.setText(lines[0])
+        self.lineEdit_6.setText(lines[1])
+        self.lineEdit_7.setText(lines[2])
+        self.lineEdit_8.setText(lines[3])
+        self.lineEdit_9.setText(lines[4])
+        self.lineEdit_10.setText(lines[5])
+        self.lineEdit_11.setText(lines[6])
+        self.lineEdit_12.setText(lines[7])
+        self.lineEdit_13.setText(lines[8])
+        self.lineEdit_14.setText(lines[9])
+        self.lineEdit_15.setText(lines[10])
+        self.lineEdit_16.setText(lines[11])
+        self.lineEdit_33.setText(lines[12])
+        self.lineEdit_34.setText(lines[13])
+        self.lineEdit_35.setText(lines[14])
+        self.lineEdit_36.setText(lines[15])
+        self.lineEdit_37.setText(lines[16])
+        self.lineEdit_38.setText(lines[17])
+        self.lineEdit_39.setText(lines[18])
+        self.lineEdit_40.setText(lines[19])
+        self.lineEdit_41.setText(lines[20])
+        self.lineEdit_42.setText(lines[21])
+        self.lineEdit_43.setText(lines[22])
+        self.lineEdit_44.setText(lines[23])
+        os.remove('scheme_etalon.txt')
 
 
 if __name__ == "__main__":
