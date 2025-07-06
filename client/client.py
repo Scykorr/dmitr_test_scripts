@@ -5,7 +5,7 @@ from types import NoneType
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QBrush, QColor, QPen, QFont, QPolygonF
-from PyQt5.QtWidgets import QGraphicsScene
+from PyQt5.QtWidgets import QGraphicsScene, QMessageBox
 
 from GUI.client import Ui_MainWindow
 import socket
@@ -46,6 +46,8 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lineEdit_42.textChanged.connect(self.draw_scheme)
         self.lineEdit_43.textChanged.connect(self.draw_scheme)
         self.lineEdit_44.textChanged.connect(self.draw_scheme)
+        self.pushButton_3.setVisible(False)
+        self.pushButton_4.clicked.connect(self.get_schema_answer)
         user_file_name = list()
 
     def check_user_file_name(self, filename):
@@ -425,6 +427,26 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         # ])
         # scene.addPolygon(polygon_kuu, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
         # scene.addText("KUU-100", font).setPos(460, 260)
+
+
+    def get_schema_answer(self):
+        file_name = '_'.join(self.lineEdit.text().split())
+        file_name = 'schema_' + file_name + '.conf'
+        with open(file_name, 'w') as f:
+            fields_list = [self.lineEdit_5.text(), self.lineEdit_6.text(), self.lineEdit_7.text(),
+                           self.lineEdit_8.text(), self.lineEdit_9.text(), self.lineEdit_10.text(),
+                           self.lineEdit_11.text(), self.lineEdit_12.text(), self.lineEdit_13.text(),
+                           self.lineEdit_14.text(), self.lineEdit_15.text(), self.lineEdit_16.text(),
+                           self.lineEdit_33.text(), self.lineEdit_34.text(), self.lineEdit_35.text(),
+                           self.lineEdit_36.text(), self.lineEdit_37.text(), self.lineEdit_38.text(),
+                           self.lineEdit_39.text(), self.lineEdit_40.text(), self.lineEdit_41.text(),
+                           self.lineEdit_42.text(), self.lineEdit_43.text(), self.lineEdit_44.text(), ]
+            res_text = '\n'.join(fields_list)
+            f.write(res_text)
+        os.system(f'tftp {self.curr_ip} PUT {file_name}')
+        os.remove(file_name)
+        QMessageBox.information(self, "Информация", "Ответ отправлен на проверку!")
+
 
 if __name__ == "__main__":
     import sys

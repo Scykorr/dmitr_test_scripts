@@ -28,10 +28,12 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.users_files_table.doubleClicked.connect(lambda: self.choose_operator(page_index=2))
         self.users_files_table.clicked.connect(
             lambda: self.show_checked_user_script(user_script_file=self.users_files_table.currentItem().text()))
+        self.tableWidget_5.clicked.connect(
+            lambda: self.show_checked_user_schema_script(user_script_file=self.tableWidget_5.currentItem().text()))
         self.comboBox.currentTextChanged.connect(self.show_standard_file)
-        # self.lineEdit_2.setText('10.125.20.250')
+        self.lineEdit_2.setText('10.125.20.250')
         # self.lineEdit_2.setText('192.168.1.14')
-        self.lineEdit_2.setText('127.0.0.1')
+        # self.lineEdit_2.setText('127.0.0.1')
         self.ip_address = self.lineEdit_2.text()
         self.pushButton_3.clicked.connect(lambda: self.choose_operator(page_index=1))
         self.pushButton_6.clicked.connect(lambda: self.choose_operator(page_index=3))
@@ -73,6 +75,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.get_standard_files_var()
             self.show_standard_file()
             self.get_user_files()
+            self.get_user_files_schema()
             self.draw_scheme()
         elif page_index == 2:
             if '.conf' in self.users_files_table.currentItem().text():
@@ -88,6 +91,8 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         elif page_index == 5:
             self.change_size(1400, 991)
             self.stackedWidget.setCurrentIndex(page_index)
+            self.show_schema_etalon()
+
 
     def get_standard_files(self):
 
@@ -206,6 +211,68 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
                             counter_error_symbols += 1
             self.users_files_table.setItem(index_el, 1, QtWidgets.QTableWidgetItem(str(counter_error_strings)))
             self.users_files_table.setItem(index_el, 3, QtWidgets.QTableWidgetItem(str(counter_error_symbols)))
+        pathlib.Path(f'{file_name_standard}').unlink()
+
+    def get_user_files_schema(self):
+        directory = self.lineEdit_3.text()
+        files = list()
+
+        files += os.listdir(directory)
+        users_files = list()
+        for file in files:
+            print(file.split('.conf'))
+            if '.conf' in file and file.split('.conf')[0] not in map(str, range(31)) and 'schema_' in file:
+                users_files.append(file)
+        self.tableWidget_5.setColumnCount(5)
+        self.tableWidget_5.setRowCount(len(users_files))
+        self.tableWidget_5.setHorizontalHeaderLabels(
+            ["Строки скрипта", "Ош.\nстрок", "Лишние\nстроки", "Ош.\nсимволов", "Время сохранения файла"])
+        header = self.tableWidget_5.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+
+        file_name_standard = 'scheme_etalon.txt'
+        if file_name_standard == '':
+            file_name_standard = 'scheme_etalon.txt'
+        os.system(f'tftp {self.lineEdit_2.text()} GET {file_name_standard}')
+        with open(f'{file_name_standard}', 'r') as f_standard:
+            st_text = f_standard.read()
+
+        standard_text_list = st_text.split('\n')
+
+        for index_el, el in enumerate(users_files):
+            filename = f"{self.lineEdit_3.text()}\\{el}"
+            mtime = os.path.getmtime(filename)
+            mtime_readable = datetime.fromtimestamp(mtime)
+            self.tableWidget_5.setItem(index_el, 0, QtWidgets.QTableWidgetItem(str(el)))
+            self.tableWidget_5.setItem(index_el, 4, QtWidgets.QTableWidgetItem(str(mtime_readable)))
+            os.system(f'tftp {self.lineEdit_2.text()} GET {file_name_standard}')
+            with open(f'{filename}', 'r') as f_user:
+                usr_text = f_user.read()
+            user_text_list = usr_text.split('\n')
+            if len(user_text_list) > len(standard_text_list):
+                self.tableWidget_5.setItem(index_el, 2, QtWidgets.QTableWidgetItem(
+                    str(len(user_text_list) - len(standard_text_list))))
+            else:
+                self.tableWidget_5.setItem(index_el, 2, QtWidgets.QTableWidgetItem(str(0)))
+            counter_error_strings = 0
+            counter_error_symbols = 0
+            if len(user_text_list) < len(standard_text_list):
+                user_text_list += [''] * (len(standard_text_list) - len(user_text_list))
+            user_text_edge = user_text_list[:len(standard_text_list)]
+            for i_el, elem in enumerate(standard_text_list):
+                if elem != user_text_edge[i_el]:
+                    counter_error_strings += 1
+                    for i_symb, letter in enumerate(elem):
+                        if len(elem) > len(user_text_edge[i_el]):
+                            user_text_edge[i_el] += 'a' * (len(elem) - len(user_text_edge[i_el]))
+                        if letter != user_text_edge[i_el][i_symb]:
+                            counter_error_symbols += 1
+            self.tableWidget_5.setItem(index_el, 1, QtWidgets.QTableWidgetItem(str(counter_error_strings)))
+            self.tableWidget_5.setItem(index_el, 3, QtWidgets.QTableWidgetItem(str(counter_error_symbols)))
         pathlib.Path(f'{file_name_standard}').unlink()
 
     def show_standard_file(self):
@@ -336,6 +403,30 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             pathlib.Path(f'{file_name_standard}').unlink()
             self.checked_user_script(standard_text_list, user_text_list)
 
+    def show_checked_user_schema_script(self, user_script_file):
+
+        if self.tableWidget_5.currentColumn() == 0:
+            file_name_standard = 'scheme_etalon.txt'
+            os.system(f'tftp {self.lineEdit_2.text()} GET {file_name_standard}')
+            with open(f'{file_name_standard}', 'r') as f_standard:
+                lines_standard = [line.strip() for line in f_standard.readlines()]
+
+            os.system(f'tftp 127.0.0.1 GET {user_script_file}')
+            with open(f'{user_script_file}', 'r') as f:
+                lines = [line.strip() for line in f.readlines()]
+
+            counter = 0
+            for num in range(len(lines_standard)):
+                pass
+
+
+            os.remove(f'{user_script_file}')
+            os.remove(f'{file_name_standard}')
+            print(lines)
+            self.draw_scheme_user(lines)
+
+
+
     def checked_user_script(self, etalon_text_list, user_list):
         user_table = self.tableWidget_2
 
@@ -431,13 +522,31 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         os.system(f'tftp {self.lineEdit_2.text()} put files_amount_var.txt')
         os.remove(f'files_amount_var.txt')
 
+    def draw_scheme_user(self, user_values):
+        # === Очистка старой сцены (если была) ===
+        if hasattr(self, 'scene'):
+            self.scene_user_answer = QGraphicsScene()
+            self.scene_user_answer.clear()
+        else:
+            self.scene_user_answer = QGraphicsScene()
+        # === Настройка стилей ===
+        black_pen = QPen(Qt.black, 2)
+        gray_brush = QBrush(QColor(192, 192, 192))
+
+
+        self.draw_block_user(self.scene_user_answer, 0, 0, "IAD", "ЦАТС\nDX-500С", "IP-ATC\nT-76С", "T-76С", "E+H1", "S", "M")
+        self.draw_additional_elements_user(self.scene_user_answer, user_values)
+
+        # === Привязка сцены к view ===
+        self.graphicsView_2.setScene(self.scene_user_answer)
+        self.graphicsView_2.setRenderHint(QtGui.QPainter.Antialiasing)
+
     def draw_scheme(self):
         # === Очистка старой сцены (если была) ===
         if hasattr(self, 'scene'):
             self.scene.clear()
         else:
             self.scene = QGraphicsScene()
-
         # === Настройка стилей ===
         black_pen = QPen(Qt.black, 2)
         gray_brush = QBrush(QColor(192, 192, 192))
@@ -450,11 +559,12 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         # === Добавление дополнительных элементов ===
         self.draw_additional_elements(self.scene)
 
+
+
         # === Привязка сцены к view ===
         self.graphicsView.setScene(self.scene)
         self.graphicsView.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.graphicsView_2.setScene(self.scene)
-        self.graphicsView_2.setRenderHint(QtGui.QPainter.Antialiasing)
+
         self.graphicsView_3.setScene(self.scene)
         self.graphicsView_3.setRenderHint(QtGui.QPainter.Antialiasing)
 
@@ -666,10 +776,218 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         scene.addLine(205, 370, 258, 370, QPen(Qt.black, 2))
         scene.addText("E1", font).setPos(220, 348)
 
+
+    def draw_block_user(self, scene, x, y, bottom_text, bottom_left_text, middle_text, top_text, top_right_text, s_label,
+                   m_label):
+        from PyQt5.QtGui import QPolygonF
+
+        font = QFont("Arial", 12)
+
+        # Прямоугольник IAD
+        polygon_iad = QPolygonF([
+            QPointF(x - 90, y + 400),
+            QPointF(x - 30, y + 400),
+            QPointF(x - 60, y + 350)
+        ])
+        scene.addPolygon(polygon_iad, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(bottom_text, font).setPos(x - 75, y + 400)
+
+        # Треугольник M
+        polygon_m = QPolygonF([
+            QPointF(x - 250, y + 200),
+            QPointF(x - 190, y + 200),
+            QPointF(x - 220, y + 150)
+        ])
+        scene.addPolygon(polygon_m, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(m_label, font).setPos(x - 215, y + 135)
+        scene.addText('DX-500C\n     №1', font).setPos(x - 255, y + 200)
+
+        # Треугольник S
+        polygon_s = QPolygonF([
+            QPointF(x - 90, y + 200),
+            QPointF(x - 30, y + 200),
+            QPointF(x - 60, y + 150)
+        ])
+        scene.addPolygon(polygon_s, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(s_label, font).setPos(x - 90, y + 135)
+        scene.addText('IP ATC\nT-76C №1', font).setPos(x - 90, y + 200)
+        scene.addText("Eth0", font).setPos(-55, 135)
+
+        # numbers S
+        scene.addLine(-60, 150, -40, 100, QPen(Qt.black, 2))
+        scene.addLine(-60, 150, -80, 100, QPen(Qt.black, 2))
+        scene.addRect(x - 90, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addRect(x - 50, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+
+        # numbers S1
+        scene.addLine(260, 150, 280, 100, QPen(Qt.black, 2))
+        scene.addLine(260, 150, 240, 100, QPen(Qt.black, 2))
+        scene.addRect(x + 230, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addRect(x + 270, y + 73, 25, 25, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+
+        # коммутатор 1
+        polygon_k1 = QPolygonF([
+            QPointF(x - 150, y + 300),
+            QPointF(x - 100, y + 300),
+            QPointF(x - 120, y + 330),
+            QPointF(x - 170, y + 330)
+        ])
+        scene.addPolygon(polygon_k1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('→', font).setPos(x - 147, y + 296)
+        scene.addText('←', font).setPos(x - 147, y + 306)
+
+        # овал сеть
+        scene.addEllipse(x + 30, y + 150, 100, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText("ТСКП", font).setPos(55, 160)
+
+        # Треугольник S1
+        polygon_s1 = QPolygonF([
+            QPointF(x + 290, y + 200),
+            QPointF(x + 230, y + 200),
+            QPointF(x + 260, y + 150)
+        ])
+        scene.addPolygon(polygon_s1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(s_label, font).setPos(x + 270, y + 135)
+        scene.addText('IP ATC\nT-76C №2', font).setPos(x + 230, y + 200)
+        scene.addText("Eth0", font).setPos(210, 135)
+
+        # Треугольник M1
+        polygon_m1 = QPolygonF([
+            QPointF(x + 450, y + 200),
+            QPointF(x + 390, y + 200),
+            QPointF(x + 420, y + 150)
+        ])
+        scene.addPolygon(polygon_m1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText(m_label, font).setPos(x + 390, y + 135)
+        scene.addText('DX-500C\n     №2', font).setPos(x + 385, y + 200)
+
+        # Треугольник DX 500C
+        polygon_ksh = QPolygonF([
+            QPointF(x + 300, y + 400),
+            QPointF(x + 240, y + 400),
+            QPointF(x + 270, y + 350)
+        ])
+        scene.addPolygon(polygon_ksh, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('DX-500C\n     №3', font).setPos(x + 240, y + 400)
+
+        # Прямоугольник КШ-100
+        scene.addRect(x + 180, y + 350, 25, 50, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('КШ-100', font).setPos(x + 160, y + 400)
+
+        # коммутатор 2
+        polygon_k1 = QPolygonF([
+            QPointF(x + 180, y + 250),
+            QPointF(x + 230, y + 250),
+            QPointF(x + 210, y + 280),
+            QPointF(x + 160, y + 280)
+        ])
+        scene.addPolygon(polygon_k1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        scene.addText('→', font).setPos(x + 183, y + 245)
+        scene.addText('←', font).setPos(x + 183, y + 254)
+
+        # # Прямоугольник IP-ATC
+        # scene.addRect(x + 150, y + 100, 150, 100, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText(middle_text, font).setPos(x + 170, y + 150)
+
+        # # Треугольник E+H1
+        # polygon_eh1 = QPolygonF([
+        #     QPointF(x + 150, y + 100),
+        #     QPointF(x + 150, y),
+        #     QPointF(x + 225, y + 50)
+        # ])
+        # scene.addPolygon(polygon_eh1, QPen(Qt.black, 2), QBrush(QColor(192, 192, 192)))
+        # scene.addText(top_right_text, font).setPos(x + 160, y + 20)
+
+        # # Текст T-76С
+        # scene.addText(top_text, font).setPos(x + 170, y + 120)
+
+        # # Текст ΔX-500С
+        # scene.addText(bottom_left_text, font).setPos(x + 20, y + 300)
+
+    def draw_additional_elements_user(self, scene, user_values):
+        font = QFont("Arial", 12)
+
+        # изменяемые подписи
+        # IP ATC T-76C №1
+
+        # IP ATC T-76C №2
+
+        # SIP,RPT Слева
+
+        # SIP,RPT Справа
+
+        # IP ATC T-76C №1 порты
+        scene.addText(user_values[0], font).setPos(-103, 110)
+        scene.addText(user_values[1], font).setPos(-50, 110)
+
+        # IP ATC T-76C №2 порты
+        scene.addText(user_values[2], font).setPos(220, 110)
+        scene.addText(user_values[3], font).setPos(270, 110)
+
+        # IP ATC T-76C №1 номера
+        scene.addText(user_values[12] + '-\n' + user_values[13], font).setPos(-100, 30)
+
+        # IP ATC T-76C №2 номера
+        scene.addText(user_values[14] + '-\n' + user_values[15], font).setPos(220, 30)
+
+        # DX-500C №1 номера
+        scene.addText(user_values[16] + '-\n' + user_values[17], font).setPos(-270, 110)
+
+        # DX-500C №2 номера
+        scene.addText(user_values[18] + '-\n' + user_values[19], font).setPos(410, 110)
+
+        # DX-500C №3 номера
+        scene.addText(user_values[20] + '-\n' + user_values[21], font).setPos(260, 310)
+
+        # IAD номера
+        scene.addText(user_values[22] + '-\n' + user_values[23], font).setPos(-70, 310)
+
+        # Линии
+        # M-S
+        scene.addLine(-212, 160, -68, 160, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(-155, 135)
+
+        # S-коммутатор
+        scene.addLine(-120, 195, -89, 195, QPen(Qt.black, 2))
+        scene.addLine(-120, 195, -120, 300, QPen(Qt.black, 2))
+        scene.addText("Eth1", font).setPos(-125, 170)
+
+        # коммутатор-IAD
+        scene.addLine(-130, 330, -130, 360, QPen(Qt.black, 2))
+        scene.addLine(-150, 330, -150, 380, QPen(Qt.black, 2))
+        scene.addLine(-130, 360, -68, 360, QPen(Qt.black, 2))
+        scene.addLine(-150, 380, -80, 380, QPen(Qt.black, 2))
+        scene.addText("SIP", font).setPos(-115, 335)
+        scene.addText("RTP", font).setPos(-140, 377)
+
+        # S-Network
+        scene.addLine(-53, 160, 41, 160, QPen(Qt.black, 2))
+
+        # Network-S1
+        scene.addLine(122, 160, 255, 160, QPen(Qt.black, 2))
+
+        # S1-M1
+        scene.addLine(269, 160, 412, 160, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(330, 135)
+
+        # S1-маршрутизатор
+        scene.addLine(190, 190, 235, 190, QPen(Qt.black, 2))
+        scene.addLine(190, 190, 190, 250, QPen(Qt.black, 2))
+        scene.addText("Eth1", font).setPos(150, 210)
+
+        # маршрутизатор-КШ-100
+        scene.addLine(185, 280, 185, 350, QPen(Qt.black, 2))
+        scene.addLine(200, 280, 200, 350, QPen(Qt.black, 2))
+        scene.addText("SIP", font).setPos(150, 300)
+        scene.addText("RTP", font).setPos(200, 300)
+
+        # КШ-100-DX-500C
+        scene.addLine(205, 370, 258, 370, QPen(Qt.black, 2))
+        scene.addText("E1", font).setPos(220, 348)
+
     def add_scheme_config(self):
         filename_schema_etalon = 'scheme_etalon.txt'
         with open(filename_schema_etalon, 'w') as f_etalon:
-            fields_list = list()
             fields_list = [self.lineEdit_5.text(), self.lineEdit_6.text(), self.lineEdit_7.text(),
                            self.lineEdit_8.text(), self.lineEdit_9.text(), self.lineEdit_10.text(),
                            self.lineEdit_11.text(), self.lineEdit_12.text(), self.lineEdit_13.text(),
@@ -688,7 +1006,6 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         os.system(f'tftp {self.ip_address} GET {filename_schema_etalon}')
         with open(filename_schema_etalon, 'r') as f_etalon:
             lines = [line.strip() for line in f_etalon.readlines()]
-            print(lines)
         self.lineEdit_5.setText(lines[0])
         self.lineEdit_6.setText(lines[1])
         self.lineEdit_7.setText(lines[2])

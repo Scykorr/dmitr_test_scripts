@@ -328,7 +328,7 @@ T-76C №2</string>
       <property name="geometry">
        <rect>
         <x>790</x>
-        <y>560</y>
+        <y>530</y>
         <width>113</width>
         <height>20</height>
        </rect>
@@ -352,7 +352,7 @@ T-76C №2</string>
       <property name="geometry">
        <rect>
         <x>790</x>
-        <y>530</y>
+        <y>560</y>
         <width>113</width>
         <height>20</height>
        </rect>
@@ -388,7 +388,7 @@ T-76C №2</string>
       <property name="geometry">
        <rect>
         <x>950</x>
-        <y>560</y>
+        <y>530</y>
         <width>113</width>
         <height>20</height>
        </rect>
@@ -401,7 +401,7 @@ T-76C №2</string>
       <property name="geometry">
        <rect>
         <x>950</x>
-        <y>530</y>
+        <y>560</y>
         <width>113</width>
         <height>20</height>
        </rect>
