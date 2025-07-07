@@ -62,6 +62,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_13.clicked.connect(self.show_schema_etalon)
         self.pushButton_11.clicked.connect(lambda: self.choose_operator(page_index=5))
         self.pushButton_12.clicked.connect(lambda: self.choose_operator(page_index=1))
+        self.pushButton_11.setVisible(False)
         # self.get_files_amout()
         # self.get_files_amount_var()
 

@@ -46,8 +46,9 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lineEdit_42.textChanged.connect(self.draw_scheme)
         self.lineEdit_43.textChanged.connect(self.draw_scheme)
         self.lineEdit_44.textChanged.connect(self.draw_scheme)
-        self.pushButton_3.setVisible(False)
         self.pushButton_4.clicked.connect(self.get_schema_answer)
+        self.pushButton_4.setVisible(False)
+        self.pushButton_3.clicked.connect(self.get_variant_scheme)
         user_file_name = list()
 
     def check_user_file_name(self, filename):
@@ -446,6 +447,37 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
         os.system(f'tftp {self.curr_ip} PUT {file_name}')
         os.remove(file_name)
         QMessageBox.information(self, "Информация", "Ответ отправлен на проверку!")
+
+    def get_variant_scheme(self):
+        filename_schema_etalon = 'scheme_etalon.txt'
+        os.system(f'tftp {self.curr_ip} GET {filename_schema_etalon}')
+        with open(filename_schema_etalon, 'r') as f_etalon:
+            lines = [line.strip() for line in f_etalon.readlines()]
+        self.lineEdit_5.setText(lines[0])
+        self.lineEdit_6.setText(lines[1])
+        self.lineEdit_7.setText(lines[2])
+        self.lineEdit_8.setText(lines[3])
+        self.lineEdit_9.setText(lines[4])
+        self.lineEdit_10.setText(lines[5])
+        self.lineEdit_11.setText(lines[6])
+        self.lineEdit_12.setText(lines[7])
+        self.lineEdit_13.setText(lines[8])
+        self.lineEdit_14.setText(lines[9])
+        self.lineEdit_15.setText(lines[10])
+        self.lineEdit_16.setText(lines[11])
+        self.lineEdit_33.setText(lines[12])
+        self.lineEdit_34.setText(lines[13])
+        self.lineEdit_35.setText(lines[14])
+        self.lineEdit_36.setText(lines[15])
+        self.lineEdit_37.setText(lines[16])
+        self.lineEdit_38.setText(lines[17])
+        self.lineEdit_39.setText(lines[18])
+        self.lineEdit_40.setText(lines[19])
+        self.lineEdit_41.setText(lines[20])
+        self.lineEdit_42.setText(lines[21])
+        self.lineEdit_43.setText(lines[22])
+        self.lineEdit_44.setText(lines[23])
+        os.remove('scheme_etalon.txt')
 
 
 if __name__ == "__main__":
