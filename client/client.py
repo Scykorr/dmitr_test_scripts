@@ -68,7 +68,7 @@ class MainClass(QtWidgets.QMainWindow, Ui_MainWindow):
             err_dialog.showMessage("Данный пользователь уже прошел тестирование!")
             os.remove(f'{self.file_name}.conf')
         elif page_index == 1 and self.lineEdit.text() != "":
-            self.change_size(1450, 731)
+            self.change_size(1450, 630)
             self.stackedWidget.setCurrentIndex(page_index)
             standard_num = self.lineEdit_4.text().split('.conf')[0]
             os.system(f'tftp {self.lineEdit_2.text()} GET {self.lineEdit_17.text()}')
